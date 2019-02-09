@@ -38,17 +38,24 @@ type MenuItem struct {
 }
 
 type Menu struct {
-	ptr  *C.Menuwidget
-	data *C.Menudata
+	ptr *C.Menuwidget
+
+	data    *C.Menudata
+	strings []*C.char
 }
 
 func NewMenu(x, y int, items []MenuItem) Menu {
+	menu := Menu{}
+
 	nitems := len(items)
 	itemsRaw := make([]C.Menuitem, nitems)
 	for i, item := range items {
+		ctext := C.CString(item.text)
+		menu.strings = append(menu.strings, ctext)
+
 		itemsRaw[i] = C.cgo_menuitem(
-			item.text,
-			C.int(hotkey),
+			ctext,
+			C.int(item.hotkey),
 			item.fn,
 		)
 	}
